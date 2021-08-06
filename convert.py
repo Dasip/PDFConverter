@@ -19,4 +19,3 @@ for page in pdf_doc:
     break
 
 image_list[0].save(img_name)
-pix.save(img_name2)
