@@ -12,6 +12,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
+        self.current_file = None
 
     def initUI(self):
 
@@ -27,23 +28,15 @@ class MainWindow(QMainWindow):
         open_file.setStatusTip("Open new file")
         open_file.triggered.connect(self.show_open)
 
+        save_file = QAction(QIcon("trial.png"), "Convert to", self)
+        save_file.setShortcut('Ctrl+S')
+        save_file.setStatusTip("Convert current PDF to some other extension")
+        save_file.triggered.connect(self.show_convert)
+
         menubar = self.menuBar()
-        fileMenu = menubar.addMenu("&Ok")
+        fileMenu = menubar.addMenu("&File")
         fileMenu.addAction(open_file)
-
-        pdf_file = fitz.open("Agro.pdf")
-        for page in pdf_file:
-            pixmap = page.getPixmap(matrix=Matrix(150/72, 150/72))
-            need = pixmap.tobytes()
-
-            qpixmap = QPixmap()
-            qpixmap.loadFromData(need)
-
-            label = QLabel("O")
-            label.setText("fff")
-            label.setPixmap(qpixmap)
-
-            self.box.addWidget(label)
+        fileMenu.addAction(save_file)
 
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
@@ -58,9 +51,52 @@ class MainWindow(QMainWindow):
         return
 
     def show_open(self):
-
         fname = QFileDialog.getOpenFileName(self, "Open file", '/home')[0]
-        print(fname)
+        self.change_pdf(fname)
+
+    def show_convert(self):
+        options = QFileDialog.Options()
+        filename, ext = QFileDialog.getSaveFileName(self, "Convert PDF to...", "FFF", "All files (*);;PNG (*.png)", options=options)
+        if filename:
+            self.save_as(filename, ext)
+
+    def clear_layout(self):
+        for i in reversed(range(self.box.count())):
+            self.box.itemAt(i).widget().setParent(None)
+
+    def change_pdf(self, filename):
+        self.clear_layout()
+        pdf_file = fitz.open(filename)
+        self.current_file = pdf_file
+        for page in pdf_file:
+            pixmap = page.getPixmap(matrix=Matrix(150/72, 150/72))
+            need = pixmap.tobytes()
+
+            qpixmap = QPixmap()
+            qpixmap.loadFromData(need)
+
+            label = QLabel("O")
+            label.setText("fff")
+            label.setPixmap(qpixmap)
+
+            self.box.addWidget(label)
+
+    def save_as(self, fname, ext):
+        if ext != "(*)":
+            file_sample = fname.split('/')
+            name_part = file_sample[-1].split('.')
+            name_part[0] = name_part[0] + "{}"
+            name_part = ".".join(name_part)
+            file_sample[-1] = name_part
+            file_sample = '/'.join(file_sample)
+            counter = 1
+            print(file_sample)
+
+            for page in self.current_file:
+                pix = page.getPixmap(matrix=Matrix(300/72, 300/72))
+                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                img.save(file_sample.format(str(counter)))
+                counter += 1
 
 
 def main():
