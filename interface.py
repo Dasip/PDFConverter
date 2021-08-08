@@ -1,7 +1,6 @@
-from PyQt5.QtWidgets import (QApplication, QLabel, QWidget, QMainWindow, QScrollArea, QVBoxLayout,
-                             QAction, QFileDialog)
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import Qt
+from PySide6.QtWidgets import (QApplication, QLabel, QWidget, QMainWindow, QScrollArea, QVBoxLayout, QFileDialog)
+from PySide6.QtGui import QPixmap, QIcon, QAction
+from PySide6.QtCore import Qt
 from fitz import *
 from PIL import Image
 from widgets import *
@@ -58,7 +57,7 @@ class MainWindow(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     main = MainWindow()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":

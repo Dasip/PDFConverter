@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import (QLabel, QWidget, QMainWindow, QScrollArea, QVBoxLayout)
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import Qt
+from PySide6.QtWidgets import (QLabel, QWidget, QMainWindow, QScrollArea, QVBoxLayout)
+from PySide6.QtGui import QPixmap, QIcon
+from PySide6.QtCore import Qt
 from pdf_master import *
 
 
