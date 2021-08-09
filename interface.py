@@ -18,6 +18,22 @@ class MainWindow(QMainWindow):
     def initUI(self):
 
         self.scroll = EditWindow()
+        self.fastc = FastConverterWindow()
+
+        self.widget = QWidget()
+        self.box = QHBoxLayout()
+        self.widget.setLayout(self.box)
+
+        button_converter = QPushButton("Fast Convert", self)
+        button_converter.clicked.connect(self.openConverter)
+        # TODO: create fast converter for converting multiple PDFs at once
+
+        button_editor = QPushButton("Open File", self)
+        button_editor.clicked.connect(self.openEditor)
+
+        self.box.addWidget(button_converter)
+        self.box.addWidget(button_editor)
+
         self.statusBar()
 
         open_file = QAction(QIcon("trial.png"), "Open", self)
@@ -35,16 +51,28 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(open_file)
         fileMenu.addAction(save_file)
 
-        self.setCentralWidget(self.scroll)
+        self.setCentralWidget(self.widget)
 
         self.setGeometry(300, 100, 1000, 1000)
         self.setWindowTitle("PDFReader")
         self.show()
         return
 
+    @Slot()
+    def openConverter(self):
+        print("Converter opened")
+        self.setCentralWidget(self.fastc)
+
+    @Slot()
+    def openEditor(self):
+        print("Editor opened")
+        self.show_open()
+
     def show_open(self):
         fname = QFileDialog.getOpenFileName(self, "Open file", '/home')[0]
         self.current_file = fitz.open(fname)
+        if self.scroll.parentWidget() != self:
+            self.setCentralWidget(self.scroll)
         self.scroll.displayFile(fname)
 
     def show_convert(self):
@@ -52,6 +80,8 @@ class MainWindow(QMainWindow):
         filename, ext = QFileDialog.getSaveFileName(self, "Convert PDF to...", "FFF", "All files (*);;PNG (*.png)", options=options)
         if filename:
             savePDFtoPNG(filename, self.current_file)
+
+
 
 
 def main():
