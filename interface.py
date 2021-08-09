@@ -72,7 +72,14 @@ class MainWindow(QMainWindow):
     @Slot()
     def showFastConvert(self):
         c = ConvertOptionsDialog()
+        c.connectPackage(self.fastConvert)
         c.exec()
+
+    @Slot()
+    def fastConvert(self, datapack):
+        print(datapack)
+        for file in self.fastc.getLinks():
+            convertPDF(file, datapack)
 
 
     def showOpen(self):

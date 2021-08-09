@@ -32,11 +32,15 @@ def generatePDFName(name_samp, counter=1):
     return name_samp
 
 
-def savePDFtoPNG(newname, file):
+def savePDFtoPNG(newname, file, dpi=300):
     counter = 1
     for page in file:
-        pix = page.getPixmap(matrix=Matrix(getDPI(300), getDPI(300)))
+        pix = page.getPixmap(matrix=Matrix(getDPI(dpi), getDPI(dpi)))
         img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
         img.save(generatePDFName(newname, counter))
         counter += 1
 
+
+def convertPDF(f, meta):
+    newname = meta["dest"] + "/" + f.split('/')[-1].split('.')[0] + "." + meta["ext"]
+    savePDFtoPNG(newname, openPDF(f), meta["dpi"])

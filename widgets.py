@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (QLabel, QWidget, QMainWindow, QScrollArea, QVBoxLayout, QHBoxLayout, QPushButton,
-                               QGridLayout, QListWidget, QListWidgetItem, QDialog, QLineEdit, QRadioButton, QCheckBox,
+                               QGridLayout, QListWidget, QFileDialog, QDialog, QLineEdit, QRadioButton, QCheckBox,
                                QButtonGroup, QSpinBox)
 from PySide6.QtGui import QPixmap, QIcon
 from PySide6.QtCore import Qt, Slot
@@ -102,12 +102,24 @@ class FastConverterWindow(QWidget):
     def connectConverter(self, slot):
         self.convert.clicked.connect(slot)
 
+    def getLinks(self):
+        return self.grid.getLinks()
+
 
 class ConvertOptionsDialog(QDialog):
 
     def __init__(self):
         super().__init__()
         self.setModal(True)
+
+        self.dest_folder = ""
+        self.ext = "png"
+        self.dpi = 1
+        self.do_folder = False
+        self.do_archive = False
+        self.data = {"dest": self.dest_folder, "ext": self.ext, "dpi": self.dpi,
+                     "do_fold": self.do_folder, "do_arc": self.do_archive}
+
         self.initUI()
 
     def initUI(self):
@@ -122,26 +134,32 @@ class ConvertOptionsDialog(QDialog):
         self.labd = QLabel("Destination:")
 
         self.destination = QLineEdit("")
+        self.destination.setReadOnly(True)
         self.browse = QPushButton("browse")
+        self.browse.clicked.connect(self.browseDest)
 
         self.extension = QButtonGroup()
         self.png = QRadioButton("PNG")
+        self.png.setChecked(True)
+        self.png.toggled.connect(self.changeExt)
         self.jpg = QRadioButton("JPG")
+        self.jpg.toggled.connect(self.changeExt)
         self.extension.addButton(self.png)
         self.extension.addButton(self.jpg)
 
-        self.additions = QButtonGroup()
         self.folder = QCheckBox("Create folder for each")
+        self.folder.toggled.connect(self.setFolder)
         self.archive = QCheckBox("Create archive for each")
-        self.additions.addButton(self.folder)
-        self.additions.addButton(self.archive)
+        self.archive.toggled.connect(self.setArchive)
 
         self.lab = QLabel("DPI:")
         self.dpi = QSpinBox()
         self.dpi.setMinimum(1)
         self.dpi.setMaximum(700)
+        self.dpi.valueChanged.connect(self.setDPI)
 
         self.cancel = QPushButton("Cancel")
+        self.cancel.clicked.connect(self.reject)
         self.ok = QPushButton("Convert")
 
         self.grid.addWidget(self.labd, poses["labd"][0], poses["labd"][1])
@@ -155,4 +173,51 @@ class ConvertOptionsDialog(QDialog):
         self.grid.addWidget(self.dpi, poses["dpi"][0], poses["dpi"][1])
         self.grid.addWidget(self.cancel, poses["canc"][0], poses["canc"][1])
         self.grid.addWidget(self.ok, poses["ok"][0], poses["ok"][1])
+
+    @Slot()
+    def browseDest(self):
+        filename = QFileDialog.getExistingDirectory(self, "Select Destination")
+        self.destination.setText(filename)
+        self.dest_folder = filename
+        self.data["dest"] = self.dest_folder
+        print("Set new dest {}".format(self.dest_folder))
+
+    @Slot()
+    def changeExt(self):
+        sender = self.sender()
+        if sender.isChecked():
+            self.ext = sender.text().casefold()
+            self.data["ext"] = self.ext
+            print("Set extension {}".format(self.ext))
+
+    @Slot()
+    def setFolder(self):
+        sender = self.sender()
+        self.do_folder = sender.isChecked()
+        self.data["do_fold"] = self.do_folder
+        print("Set folder {}".format(str(self.do_folder)))
+
+    @Slot()
+    def setArchive(self):
+        sender = self.sender()
+        self.do_archive = sender.isChecked()
+        self.data["do_arc"] = self.do_arc
+        print("Set archive {}".format(str(self.do_archive)))
+
+    @Slot()
+    def setDPI(self):
+        sender = self.sender()
+        self.dpi = sender.value()
+        self.data["dpi"] = self.dpi
+        print("Set DPI to {}".format(str(self.dpi)))
+
+    def connectPackage(self, slot):
+        self.ok.clicked.connect(lambda: slot(self.data))
+        self.ok.clicked.connect(self.accept)
+
+
+
+
+
+
 
