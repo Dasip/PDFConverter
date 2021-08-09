@@ -39,12 +39,12 @@ class MainWindow(QMainWindow):
         open_file = QAction(QIcon("trial.png"), "Open", self)
         open_file.setShortcut('Ctrl+O')
         open_file.setStatusTip("Open new file")
-        open_file.triggered.connect(self.show_open)
+        open_file.triggered.connect(self.showOpen)
 
         save_file = QAction(QIcon("trial.png"), "Convert to", self)
         save_file.setShortcut('Ctrl+S')
         save_file.setStatusTip("Convert current PDF to some other extension")
-        save_file.triggered.connect(self.show_convert)
+        save_file.triggered.connect(self.showConvert)
 
         menubar = self.menuBar()
         fileMenu = menubar.addMenu("&File")
@@ -62,20 +62,27 @@ class MainWindow(QMainWindow):
     def openConverter(self):
         print("Converter opened")
         self.setCentralWidget(self.fastc)
+        self.fastc.connectConverter(self.showFastConvert)
 
     @Slot()
     def openEditor(self):
         print("Editor opened")
         self.show_open()
 
-    def show_open(self):
+    @Slot()
+    def showFastConvert(self):
+        c = ConvertOptionsDialog()
+        c.exec()
+
+
+    def showOpen(self):
         fname = QFileDialog.getOpenFileName(self, "Open file", '/home')[0]
         self.current_file = fitz.open(fname)
         if self.scroll.parentWidget() != self:
             self.setCentralWidget(self.scroll)
         self.scroll.displayFile(fname)
 
-    def show_convert(self):
+    def showConvert(self):
         options = QFileDialog.Options()
         filename, ext = QFileDialog.getSaveFileName(self, "Convert PDF to...", "FFF", "All files (*);;PNG (*.png)", options=options)
         if filename:
