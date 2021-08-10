@@ -201,7 +201,7 @@ class ConvertOptionsDialog(QDialog):
     def setArchive(self):
         sender = self.sender()
         self.do_archive = sender.isChecked()
-        self.data["do_arc"] = self.do_arc
+        self.data["do_arc"] = self.do_archive
         print("Set archive {}".format(str(self.do_archive)))
 
     @Slot()

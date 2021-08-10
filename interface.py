@@ -53,7 +53,7 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.widget)
 
-        self.setGeometry(300, 100, 1000, 1000)
+        self.setGeometry(300, 100, 700, 700)
         self.setWindowTitle("PDFReader")
         self.show()
         return
